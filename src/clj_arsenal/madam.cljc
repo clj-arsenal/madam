@@ -19,6 +19,12 @@
       [(transient basis) (transient #{})]
       other-map)))
 
+(defn merge-op
+  [basis & maps]
+  {:pre [(every? #(or (nil? %) (map? %)) maps)]}
+  [(apply merge basis maps)
+   (mapcat (fn [m] (map vector (keys m))) maps)])
+
 (defn- clear-op
   [basis & other-vals]
   {:pre [(or
@@ -89,6 +95,7 @@
 
 (def default-operators
   {:assoc assoc-op
+   :merge merge-op
    :clear clear-op
    :conj conj-op
    :into into-op
@@ -239,7 +246,6 @@
                   (recur parent-path parent-node))))))
         watches))))
 
-
 (check ::affected-paths
   (let [!madam (madam {:x {:y {:z 1}} :m {}})
         !affected-paths (atom #{})]
@@ -259,7 +265,6 @@
        :change [:value 2]})
 
     (expect = @!affected-paths #{[] [:x] [:x :y] [:x :y :z]})))
-
 
 (check ::assoc-op
   (let [orig {:foo "foo"}
