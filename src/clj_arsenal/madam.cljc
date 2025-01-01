@@ -106,6 +106,8 @@
   [x]
   (boolean (some-> x meta ::madam)))
 
+(declare watch unwatch)
+
 (defn madam
   [x & {:keys [operators extra-operators validator]}]
   {:pre [(map? x)]}
@@ -113,7 +115,9 @@
                 :validator (if (ifn? validator) #(and (map? %) (validator %)) map?)
                 :meta {::madam true
                        ::operators (-> (or default-operators operators)
-                                     (merge  extra-operators))})]
+                                     (merge  extra-operators))
+                       'clj-arsenal.basis.protocols.path-watchable/-path-watch watch
+                       'clj-arsenal.basis.protocols.path-watchable/-path-unwatch unwatch})]
     (add-watch !atom ::madam-watch
       (fn [_ _ old-val new-val]
         (let [{changed-paths ::changed-paths
