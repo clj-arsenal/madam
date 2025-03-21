@@ -1,17 +1,29 @@
-{:paths ["src"]
- :deps {me.raystubbs.clj-arsenal/check {:local/root "../check"}
-        me.raystubbs.clj-arsenal/log {:local/root "../log"}}
+{:paths
+ ["src"]
+
+ :deps
+ {me.raystubbs.clj-arsenal/check
+  {:git/url "https://github.com/clj-arsenal/check.git"
+   :git/sha "a15d24fe5be392090bcbd457f54d978d302dbd93"}
+
+  me.raystubbs.clj-arsenal/log
+  {:git/url "https://github.com/clj-arsenal/log.git"
+   :git/sha "6f49191729472c1d75c9074e17fa53c74ace84c3"}}
 
  :aliases
  {:build
-  {:deps {me.raystubbs.clj-arsenal/build {:local/root "../build"}}
+  {:deps
+   {me.raystubbs.clj-arsenal/build {:local/root "../build"}}
+
    :ns-default clj-arsenal.build}
   
   :dev
-  {:extra-deps {cider/cider-nrepl {:mvn/version "0.50.0"}
-                criterium/criterium {:mvn/version "0.4.6"}
-                org.clojure/data.fressian {:mvn/version "1.0.0"}
-                com.taoensso/nippy {:mvn/version "3.4.2"}}
+  {:extra-deps
+   {cider/cider-nrepl {:mvn/version "0.50.0"}
+    criterium/criterium {:mvn/version "0.4.6"}
+    org.clojure/data.fressian {:mvn/version "1.0.0"}
+    com.taoensso/nippy {:mvn/version "3.4.2"}}
+
    :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]
    :clj-arsenal.check/enabled true
    :clj-arsenal.check/ns-include-re "clj-arsenal[.]madam([.].+)?"}}
