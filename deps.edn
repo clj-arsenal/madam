@@ -21,7 +21,7 @@
    :clj-arsenal.check/ns-include-re "clj-arsenal[.]madam([.].+)?"}}
 
  :clj-arsenal.build/meta
- {:version "0.0.1"
+ {:version "0.0.2"
   :name me.raystubbs.clj-arsenal/madam
   :license "The MIT License"
   :license-url "https://opensource.org/license/mit/"
