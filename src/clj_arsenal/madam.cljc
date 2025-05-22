@@ -120,8 +120,9 @@
                        'clj-arsenal.basis.protocols.path-watchable/-path-unwatch unwatch})]
     (add-watch !atom ::madam-watch
       (fn [_ _ old-val new-val]
-        (let [{changed-paths ::changed-paths
-               affected-watchers ::affected-watchers} (meta new-val)]
+        (let
+          [{changed-paths ::changed-paths
+            affected-watchers ::affected-watchers} (meta new-val)]
           (doseq [{:keys [f path]}
                   (or affected-watchers
                     (-> !atom meta ::watches :watchers vals))]
@@ -232,23 +233,28 @@
 (defn unwatch
   [!madam k]
   {:pre [(madam? !madam)]}
-  (swap! !madam vary-meta update ::watches
-    (fn [watches]
-      (if-let [path (some-> watches :watchers (get k) :path)]
-        (-> watches
-          (update :watchers dissoc k)
-          (assoc :tree
-            (loop [cur-path (path->watch-node-path path)
-                   cur-node (update (get-in watches cur-path) :watch-keys disj k)]
-              (if (= [:tree] cur-path)
-                cur-node
-                (let [parent-path (-> cur-path pop pop)
-                      parent-node (as-> (get-in watches parent-path) $
-                                    (if (and (empty? (:watch-keys cur-node)) (empty? (:sub cur-node)))
-                                      (update $ :sub dissoc (-> cur-path peek))
-                                      (assoc-in $ [:sub (-> cur-path peek)] cur-node)))]
-                  (recur parent-path parent-node))))))
-        watches))))
+  (swap! !madam vary-meta
+    (fn [metadata]
+      (-> metadata
+        (update ::watches
+          (fn [watches]
+            (if-let [path (some-> watches :watchers (get k) :path)]
+              (-> watches
+                (update :watchers dissoc k)
+                (assoc :tree
+                  (loop [cur-path (path->watch-node-path path)
+                         cur-node (update (get-in watches cur-path) :watch-keys disj k)]
+                    (if (= [:tree] cur-path)
+                      cur-node
+                      (let [parent-path (-> cur-path pop pop)
+                            parent-node (as-> (get-in watches parent-path) $
+                                          (if (and (empty? (:watch-keys cur-node)) (empty? (:sub cur-node)))
+                                            (update $ :sub dissoc (-> cur-path peek))
+                                            (assoc-in $ [:sub (-> cur-path peek)] cur-node)))]
+                        (recur parent-path parent-node))))))
+              watches)))
+        
+        (assoc ::affected-watchers nil ::changed-paths #{})))))
 
 (check ::affected-paths
   (let [!madam (madam {:x {:y {:z 1}} :m {}})
